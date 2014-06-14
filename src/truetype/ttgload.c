@@ -99,13 +99,13 @@
 
     else if ( face->os2.version != 0xFFFFU )
     {
-      *tsb = face->os2.sTypoAscender - yMax;
+      *tsb = face->os2.sTypoAscender - (FT_Short)yMax;
       *ah  = face->os2.sTypoAscender - face->os2.sTypoDescender;
     }
 
     else
     {
-      *tsb = face->horizontal.Ascender - yMax;
+      *tsb = face->horizontal.Ascender - (FT_Short)yMax;
       *ah  = face->horizontal.Ascender - face->horizontal.Descender;
     }
 

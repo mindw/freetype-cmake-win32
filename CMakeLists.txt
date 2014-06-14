@@ -49,8 +49,13 @@ if (BUILD_FRAMEWORK)
     message(FATAL_ERROR "You should use Xcode generator with BUILD_FRAMEWORK enabled")
   endif ()
   set(CMAKE_OSX_ARCHITECTURES "$(ARCHS_STANDARD_32_64_BIT)")
-  set(BUILD_SHARED_LIBS ON)
 endif ()
+
+set(BUILD_SHARED_LIBS ON)
+
+find_package(ZLIB)
+find_package(BZip2)
+find_package(PNG)
 
 set(VERSION_MAJOR "2")
 set(VERSION_MINOR "5")
@@ -60,21 +65,25 @@ set(PROJECT_VERSION ${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_PATCH})
 # Compiler definitions for building the library
 add_definitions(-DFT2_BUILD_LIBRARY)
 
+if (MSVC)
+    add_definitions(-D_CRT_SECURE_NO_WARNINGS)
+endif()
+
 # Specify library include directories
 include_directories("${PROJECT_SOURCE_DIR}/include")
 
 # Create the configuration file
-message(STATUS "Creating directory, ${PROJECT_BINARY_DIR}/include/freetype2.")
-file(MAKE_DIRECTORY ${PROJECT_BINARY_DIR}/include/freetype2)
+#message(STATUS "Creating directory, ${PROJECT_BINARY_DIR}/include/freetype2.")
+#file(MAKE_DIRECTORY ${PROJECT_BINARY_DIR}/include/freetype2)
 
 # For the auto-generated ftconfig.h file
-include_directories(BEFORE "${PROJECT_BINARY_DIR}/include/freetype2")
-message(STATUS "Creating ${PROJECT_BINARY_DIR}/include/freetype2/ftconfig.h.")
-execute_process(
-  COMMAND sed -e "s/FT_CONFIG_OPTIONS_H/<ftoption.h>/" -e "s/FT_CONFIG_STANDARD_LIBRARY_H/<ftstdlib.h>/" -e "s?/undef ?#undef ?"
-  INPUT_FILE ${PROJECT_SOURCE_DIR}/builds/unix/ftconfig.in
-  OUTPUT_FILE ${PROJECT_BINARY_DIR}/include/freetype2/ftconfig.h
-)
+#include_directories(BEFORE "${PROJECT_BINARY_DIR}/include/freetype2")
+# message(STATUS "Creating ${PROJECT_BINARY_DIR}/include/freetype2/ftconfig.h.")
+# execute_process(
+  # COMMAND sed -e "s/FT_CONFIG_OPTIONS_H/<ftoption.h>/" -e "s/FT_CONFIG_STANDARD_LIBRARY_H/<ftstdlib.h>/" -e "s?/undef ?#undef ?"
+  # INPUT_FILE ${PROJECT_SOURCE_DIR}/builds/unix/ftconfig.in
+  # OUTPUT_FILE ${PROJECT_BINARY_DIR}/include/freetype2/ftconfig.h
+# )
 
 file(GLOB PUBLIC_HEADERS "include/*.h")
 file(GLOB PUBLIC_CONFIG_HEADERS "include/config/*.h")
@@ -118,9 +127,11 @@ set(BASE_SRCS
   src/bzip2/ftbzip2.c
   src/cache/ftcache.c
   src/cff/cff.c
-  src/cid/type1cid.c
+  src/cid/type1cid.c  
+#  src/gxvalid/gxvalid.c
   src/gzip/ftgzip.c
   src/lzw/ftlzw.c
+#  src/otvalid/otvalid.c
   src/pcf/pcf.c
   src/pfr/pfr.c
   src/psaux/psaux.c
@@ -148,7 +159,36 @@ if (BUILD_FRAMEWORK)
     ${BASE_SRCS}
     builds/mac/freetype-Info.plist
   )
-endif ()
+endif()
+
+if (MSVC)
+    if (NOT DEFINED ARCH)
+        set (ARCH ${MSVC_C_ARCHITECTURE_ID})
+    endif()
+
+    # use boost convention - you cant' get the VC compiler without VS
+    if (NOT DEFINED MSVCVER)
+        math(EXPR MSVCVER "(${MSVC_VERSION} / 10) - 60")
+    endif()
+    if (BUILD_SHARED_LIBS)
+        set(runtime_name freetype-vc${MSVCVER}-mt-${ARCH})
+        
+        set(VER_PRODUCTNAME_STR "The FreeType Project")
+        set(VER_ORIGINALFILENAME_STR "${runtime_name}.dll")
+        set(VER_INTERNALNAME_STR freetype)
+        set(VER_FILEDESCRIPTION_STR "FreeType Dynamic Link Library")
+        set(VER_LEGALCOPYRIGHT_STR "Copyright 1996-2002, 2006 by David Turner, Robert Wilhelm, and Werner Lemberg.")
+        set(VER_STR "${PROJECT_VERSION}")
+        set(VER_NUM "${VERSION_MAJOR},${VERSION_MINOR},${VERSION_PATCH},0")
+        configure_file(
+              ${CMAKE_CURRENT_SOURCE_DIR}/builds/windows/version.rc.in
+              ${CMAKE_CURRENT_BINARY_DIR}/version.rc
+              @ONLY
+          )         
+        set(BASE_SRCS ${BASE_SRCS} ${CMAKE_CURRENT_BINARY_DIR}/version.rc)
+        
+    endif()    
+endif()
 
 add_library(freetype
   ${PUBLIC_HEADERS}
@@ -167,6 +207,26 @@ if (BUILD_FRAMEWORK)
     PUBLIC_HEADER "${PUBLIC_HEADERS}"
     XCODE_ATTRIBUTE_INSTALL_PATH "@rpath"
   )
+endif ()
+
+if (BZIP2_FOUND)
+    target_link_libraries(freetype ${BZIP2_LIBRARIES})
+    target_include_directories(freetype PRIVATE ${BZIP2_INCLUDE_DIR})
+endif()
+
+if (PNG_FOUND)
+    target_link_libraries(freetype ${PNG_LIBRARIES})
+    target_include_directories(freetype PRIVATE ${PNG_INCLUDE_DIR})
+endif()
+
+if (ZLIB_FOUND)
+    target_link_libraries(freetype ${ZLIB_LIBRARIES})
+    target_include_directories(freetype PRIVATE ${ZLIB_INCLUDE_DIRS})
+endif()
+
+if (WIN32)
+    set_target_properties(freetype PROPERTIES OUTPUT_NAME ${runtime_name})
+    set_target_properties(freetype PROPERTIES ARCHIVE_OUTPUT_NAME freetype)
 endif ()
 
 # Installations

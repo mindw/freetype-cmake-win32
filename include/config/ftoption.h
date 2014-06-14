@@ -184,7 +184,7 @@ FT_BEGIN_HEADER
   /*   Do not #undef this macro here since the build system might define   */
   /*   it for certain configurations only.                                 */
   /*                                                                       */
-/* #define FT_CONFIG_OPTION_SYSTEM_ZLIB */
+#define FT_CONFIG_OPTION_SYSTEM_ZLIB
 
 
   /*************************************************************************/
@@ -200,7 +200,7 @@ FT_BEGIN_HEADER
   /*                                                                       */
   /*   Define this macro if you want to enable this `feature'.             */
   /*                                                                       */
-/* #define FT_CONFIG_OPTION_USE_BZIP2 */
+#define FT_CONFIG_OPTION_USE_BZIP2
 
 
   /*************************************************************************/
@@ -225,7 +225,7 @@ FT_BEGIN_HEADER
   /*                                                                       */
   /*   Define this macro if you want to enable this `feature'.             */
   /*                                                                       */
-/* #define FT_CONFIG_OPTION_USE_PNG */
+#define FT_CONFIG_OPTION_USE_PNG 
 
 
   /*************************************************************************/
@@ -281,7 +281,8 @@ FT_BEGIN_HEADER
   /*                                                                       */
 /* #define FT_EXPORT(x)      extern x */
 /* #define FT_EXPORT_DEF(x)  x */
-
+#define FT_EXPORT(x) __declspec(dllexport) x
+#define FT_BASE(x) __declspec(dllexport) x
 
   /*************************************************************************/
   /*                                                                       */

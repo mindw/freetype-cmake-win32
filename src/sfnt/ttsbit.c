@@ -800,12 +800,12 @@
     FT_Error  error = FT_Err_Ok;
     FT_UInt   num_components, nn;
 
-    FT_Char  horiBearingX = decoder->metrics->horiBearingX;
-    FT_Char  horiBearingY = decoder->metrics->horiBearingY;
-    FT_Byte  horiAdvance  = decoder->metrics->horiAdvance;
-    FT_Char  vertBearingX = decoder->metrics->vertBearingX;
-    FT_Char  vertBearingY = decoder->metrics->vertBearingY;
-    FT_Byte  vertAdvance  = decoder->metrics->vertAdvance;
+    FT_Short  horiBearingX = decoder->metrics->horiBearingX;
+    FT_Short  horiBearingY = decoder->metrics->horiBearingY;
+    FT_UShort horiAdvance  = decoder->metrics->horiAdvance;
+    FT_Short  vertBearingX = decoder->metrics->vertBearingX;
+    FT_Short  vertBearingY = decoder->metrics->vertBearingY;
+    FT_UShort  vertAdvance  = decoder->metrics->vertAdvance;
 
 
     if ( p + 2 > limit )

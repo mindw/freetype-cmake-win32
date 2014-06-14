@@ -358,18 +358,18 @@
 #define WRITE_USHORT( p, v )   \
           do                   \
           {                    \
-            *(p)++ = (v) >> 8; \
-            *(p)++ = (v) >> 0; \
+            *(p)++ = (FT_Byte)((v) >> 8); \
+            *(p)++ = (FT_Byte)((v) >> 0); \
                                \
           } while ( 0 )
 
 #define WRITE_ULONG( p, v )     \
           do                    \
           {                     \
-            *(p)++ = (v) >> 24; \
-            *(p)++ = (v) >> 16; \
-            *(p)++ = (v) >>  8; \
-            *(p)++ = (v) >>  0; \
+            *(p)++ = (FT_Byte)((v) >> 24); \
+            *(p)++ = (FT_Byte)((v) >> 16); \
+            *(p)++ = (FT_Byte)((v) >>  8); \
+            *(p)++ = (FT_Byte)((v) >>  0); \
                                 \
           } while ( 0 )
 

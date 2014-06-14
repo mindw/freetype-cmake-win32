@@ -1,0 +1,8 @@
+{
+    "root" : "j:/dev/opt",
+    "deps" : [
+        "libpng",
+        "bzip2",
+        "zlib"
+    ]
+}
