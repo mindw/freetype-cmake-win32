@@ -241,7 +241,7 @@ FT_BEGIN_HEADER
     FT_Face       face;
     void*         table_data;
 
-    FT_ULong      subtable_length;
+    FT_Offset   subtable_length;
 
     GXV_LookupValue_SignSpec        lookupval_sign;
     GXV_Lookup_Value_Validate_Func  lookupval_func;
@@ -535,7 +535,7 @@ FT_BEGIN_HEADER
   typedef struct  GXV_odtect_DataRec_
   {
     FT_Bytes    start;
-    FT_ULong    length;
+    FT_Offset    length;
     FT_String*  name;
 
   } GXV_odtect_DataRec,  *GXV_odtect_Data;
@@ -550,7 +550,7 @@ FT_BEGIN_HEADER
 
   FT_LOCAL( void )
   gxv_odtect_add_range( FT_Bytes          start,
-                        FT_ULong          length,
+                        FT_Offset         length,
                         const FT_String*  name,
                         GXV_odtect_Range  odtect );
 

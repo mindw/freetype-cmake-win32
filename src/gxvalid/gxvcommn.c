@@ -367,7 +367,7 @@
     if ( *nUnits_p == 0 )
       *nUnits_p = binSrchHeader.nUnits;
 
-    valid->subtable_length = p - table;
+    valid->subtable_length = (FT_ULong)(p - table);
     GXV_EXIT;
   }
 
@@ -1449,7 +1449,7 @@
     GXV_TRACE(( "parsed: maxState=%d, maxEntry=%d\n",
                 *maxState_p, *maxEntry_p ));
 
-    *length_p = p - table;
+    *length_p = (FT_ULong)(p - table);
 
     GXV_EXIT;
   }
@@ -1678,9 +1678,9 @@
 
   static int
   gxv_compare_ranges( FT_Bytes  table1_start,
-                      FT_ULong  table1_length,
+                      FT_Offset  table1_length,
                       FT_Bytes  table2_start,
-                      FT_ULong  table2_length )
+                      FT_Offset  table2_length )
   {
     if ( table1_start == table2_start )
     {
@@ -1706,7 +1706,7 @@
 
   FT_LOCAL_DEF( void )
   gxv_odtect_add_range( FT_Bytes          start,
-                        FT_ULong          length,
+                        FT_Offset          length,
                         const FT_String*  name,
                         GXV_odtect_Range  odtect )
   {

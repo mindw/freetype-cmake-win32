@@ -44,6 +44,8 @@ cmake_minimum_required(VERSION 2.6)
 
 project(freetype)
 
+set(local_lib_name freetype)
+
 if (BUILD_FRAMEWORK)
   if (NOT "${CMAKE_GENERATOR}" STREQUAL "Xcode")
     message(FATAL_ERROR "You should use Xcode generator with BUILD_FRAMEWORK enabled")
@@ -61,6 +63,9 @@ set(VERSION_MAJOR "2")
 set(VERSION_MINOR "5")
 set(VERSION_PATCH "3")
 set(PROJECT_VERSION ${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_PATCH})
+
+set(SHARED_SOVERSION "6.11.3")
+set(SHARED_VERSION "6")
 
 # Compiler definitions for building the library
 add_definitions(-DFT2_BUILD_LIBRARY)
@@ -128,10 +133,10 @@ set(BASE_SRCS
   src/cache/ftcache.c
   src/cff/cff.c
   src/cid/type1cid.c  
-#  src/gxvalid/gxvalid.c
+  src/gxvalid/gxvalid.c
   src/gzip/ftgzip.c
   src/lzw/ftlzw.c
-#  src/otvalid/otvalid.c
+  src/otvalid/otvalid.c
   src/pcf/pcf.c
   src/pfr/pfr.c
   src/psaux/psaux.c
@@ -170,11 +175,18 @@ if (MSVC)
     if (NOT DEFINED MSVCVER)
         math(EXPR MSVCVER "(${MSVC_VERSION} / 10) - 60")
     endif()
+
+    # add the runtime version and target architecture into the DLL name per MS
+    # guidelines
+    set(MSVC_SHARED_SUFFIX_BASE "-${SHARED_VERSION}-vc${MSVCVER}-mt-${ARCH}")
+    set(CMAKE_SHARED_LIBRARY_SUFFIX "${MSVC_SHARED_SUFFIX_BASE}.dll")
+    
     if (BUILD_SHARED_LIBS)
-        set(runtime_name freetype-vc${MSVCVER}-mt-${ARCH})
+
+        #set(runtime_name freetype-vc${MSVCVER}-mt-${ARCH})
         
         set(VER_PRODUCTNAME_STR "The FreeType Project")
-        set(VER_ORIGINALFILENAME_STR "${runtime_name}.dll")
+        set(VER_ORIGINALFILENAME_STR "${local_lib_name}${PROJECT_VERSION_MAJOR}${CMAKE_SHARED_LIBRARY_SUFFIX}")
         set(VER_INTERNALNAME_STR freetype)
         set(VER_FILEDESCRIPTION_STR "FreeType Dynamic Link Library")
         set(VER_LEGALCOPYRIGHT_STR "Copyright 1996-2002, 2006 by David Turner, Robert Wilhelm, and Werner Lemberg.")
@@ -225,9 +237,13 @@ if (ZLIB_FOUND)
 endif()
 
 if (WIN32)
-    set_target_properties(freetype PROPERTIES OUTPUT_NAME ${runtime_name})
-    set_target_properties(freetype PROPERTIES ARCHIVE_OUTPUT_NAME freetype)
+    set_target_properties(${local_lib_name} PROPERTIES PDB_NAME "${local_lib_name}${MSVC_SHARED_SUFFIX_BASE}")
 endif ()
+
+set_target_properties(freetype PROPERTIES 
+    VERSION ${SHARED_VERSION}
+    SOVERSION ${SHARED_SOVERSION}
+    )
 
 # Installations
 # Note the trailing slash in the argument to the `DIRECTORY' directive
